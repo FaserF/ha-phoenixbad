@@ -1,0 +1,17 @@
+{
+  "domain": "phoenix_bad",
+  "name": "Phönix-Bad Ottobrunn",
+  "config_flow": true,
+  "version": "1.0.0",
+  "documentation": "https://github.com/faserf/ha-phoenixbad#readme",
+  "issue_tracker": "https://github.com/faserf/ha-phoenixbad/issues",
+  "requirements": [
+    "beautifulsoup4==4.12.3",
+    "requests==2.32.3"
+  ],
+  "dependencies": [],
+  "codeowners": [
+    "@FaserF"
+  ],
+  "iot_class": "cloud_polling"
+}

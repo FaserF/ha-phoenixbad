@@ -1,0 +1,13 @@
+{
+  "title": "Phönix-Bad",
+  "sensor": {
+    "pool": {
+      "name": "Pool Occupancy",
+      "unit_of_measurement": "%"
+    },
+    "sauna": {
+      "name": "Sauna Occupancy",
+      "unit_of_measurement": "%"
+    }
+  }
+}
