@@ -4,7 +4,7 @@
     "pool": "Belegung Pool",
     "sauna": "Belegung Sauna"
   },
-  "error": {
+  "abort": {
     "already_configured": "Ein Phönix Bad ist bereits konfiguriert. Bitte entfernen Sie die bestehende Konfiguration, um eine neue hinzuzufügen."
   }
 }

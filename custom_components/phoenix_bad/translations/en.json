@@ -4,7 +4,7 @@
     "pool": "Pool Occupancy",
     "sauna": "Sauna Occupancy"
   },
-  "error": {
+  "abort": {
     "already_configured": "A Phoenix bath sensor is already configured. Please remove the existing configuration to add a new one."
   }
 }
