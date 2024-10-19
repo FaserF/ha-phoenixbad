@@ -1,13 +1,10 @@
 {
-  "title": "Phönix-Bad",
+  "title": "Phönix-Bad Ottobrunn",
   "sensor": {
-    "pool": {
-      "name": "Pool Occupancy",
-      "unit_of_measurement": "%"
-    },
-    "sauna": {
-      "name": "Sauna Occupancy",
-      "unit_of_measurement": "%"
-    }
+    "pool": "Belegung Pool",
+    "sauna": "Belegung Sauna"
+  },
+  "error": {
+    "already_configured": "Ein Phönix Bad ist bereits konfiguriert. Bitte entfernen Sie die bestehende Konfiguration, um eine neue hinzuzufügen."
   }
 }

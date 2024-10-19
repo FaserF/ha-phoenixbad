@@ -1,13 +1,10 @@
 {
-  "title": "Phönix-Bad",
+  "title": "Phoenix-Bad Ottobrunn",
   "sensor": {
-    "pool": {
-      "name": "Pool Occupancy",
-      "unit_of_measurement": "%"
-    },
-    "sauna": {
-      "name": "Sauna Occupancy",
-      "unit_of_measurement": "%"
-    }
+    "pool": "Pool Occupancy",
+    "sauna": "Sauna Occupancy"
+  },
+  "error": {
+    "already_configured": "A Phoenix bath sensor is already configured. Please remove the existing configuration to add a new one."
   }
 }
