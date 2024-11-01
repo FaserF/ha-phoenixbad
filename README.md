@@ -1,11 +1,11 @@
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 # Phönix Bad Ottobrunn occupancy Homeassistant Sensor
 The `phoenix_bad` sensor will give you informations about the current utilization of the Phönix Bad.
 
 ## Installation
 ### 1. Using HACS (recommended way)
 
-This integration is soon a official HACS Integration.
+This integration is soon a official HACS Integration and right now an custom integration.
 
 Open HACS then install the "Phönix Bad Ottobrunn" integration or use the link below.
 
