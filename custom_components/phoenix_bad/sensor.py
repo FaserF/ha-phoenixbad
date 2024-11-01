@@ -9,6 +9,8 @@ from datetime import timedelta
 
 _LOGGER = logging.getLogger(__name__)
 
+SCAN_INTERVAL = timedelta(hours=1)
+
 SENSOR_TYPE_POOL = "pool"
 SENSOR_TYPE_SAUNA = "sauna"
 
@@ -76,7 +78,6 @@ class PoolOccupancySensor(SensorEntity):
         self._attr_unit_of_measurement = "%"
         self._attr_icon = "mdi:pool"
         self._attr_native_value = None
-        self._attr_update_interval = timedelta(hours=1)
 
     @property
     def native_value(self):
@@ -113,7 +114,6 @@ class SaunaOccupancySensor(SensorEntity):
         self._attr_unit_of_measurement = "%"
         self._attr_icon = "mdi:waves"
         self._attr_native_value = None
-        self._attr_update_interval = timedelta(hours=1)
 
     @property
     def native_value(self):
@@ -143,15 +143,9 @@ class SaunaOccupancySensor(SensorEntity):
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     """Set up Phönix Bad sensors from a config entry."""
     _LOGGER.debug("Setting up Phönix Bad sensors...")
-    try:
-        # Create instances of the sensors and add them to Home Assistant
-        sensors = [
-            PoolOccupancySensor(),
-            SaunaOccupancySensor(),
-        ]
-
-        _LOGGER.debug("Adding sensors: %s", [sensor._attr_name for sensor in sensors])
-        async_add_entities(sensors, update_before_add=True)
-        _LOGGER.debug("Sensors added successfully.")
-    except Exception as e:
-        _LOGGER.error("Error setting up sensors: %s", e)
+    sensors = [
+        PoolOccupancySensor(),
+        SaunaOccupancySensor(),
+    ]
+    async_add_entities(sensors, update_before_add=True)
+    _LOGGER.debug("Sensors added successfully.")
