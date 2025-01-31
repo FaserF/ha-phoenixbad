@@ -35,6 +35,19 @@ async def fetch_occupancy(session):
 
             pool_free = int(pool_free_span.text.strip())
             pool_occupied = int(pool_occupied_div.find('span', title=True).text.strip())
+            try:
+                pool_free_text = pool_free_span.text.strip() if pool_free_span else "0"
+                pool_occupied_text = pool_occupied_div.find('span', title=True).text.strip() if pool_occupied_div else "0"
+
+                pool_free = int(pool_free_text) if pool_free_text.isdigit() else 0
+                pool_occupied = int(pool_occupied_text) if pool_occupied_text.isdigit() else 0
+
+                occupancy_data[SENSOR_TYPE_SAUNA] = (sauna_free, sauna_occupied)
+                _LOGGER.debug(f"Pool data fetched: free={sauna_free}, occupied={sauna_occupied}")
+            except Exception as e:
+                _LOGGER.error(f"Failed to parse pool occupancy data: {e}")
+                return None
+
             occupancy_data[SENSOR_TYPE_POOL] = (pool_free, pool_occupied)
             _LOGGER.debug(f"Pool data fetched: free={pool_free}, occupied={pool_occupied}")
     except Exception as e:
@@ -53,8 +66,19 @@ async def fetch_occupancy(session):
                 _LOGGER.error("Could not find required sauna occupancy elements in the response.")
                 return None
 
-            sauna_free = int(sauna_free_span.text.strip())
-            sauna_occupied = int(sauna_occupied_div.find('span', title=True).text.strip())
+            try:
+                sauna_free_text = sauna_free_span.text.strip() if sauna_free_span else "0"
+                sauna_occupied_text = sauna_occupied_div.find('span', title=True).text.strip() if sauna_occupied_div else "0"
+
+                sauna_free = int(sauna_free_text) if sauna_free_text.isdigit() else 0
+                sauna_occupied = int(sauna_occupied_text) if sauna_occupied_text.isdigit() else 0
+
+                occupancy_data[SENSOR_TYPE_SAUNA] = (sauna_free, sauna_occupied)
+                _LOGGER.debug(f"Sauna data fetched: free={sauna_free}, occupied={sauna_occupied}")
+            except Exception as e:
+                _LOGGER.error(f"Failed to parse sauna occupancy data: {e}")
+                return None
+
             occupancy_data[SENSOR_TYPE_SAUNA] = (sauna_free, sauna_occupied)
             _LOGGER.debug(f"Sauna data fetched: free={sauna_free}, occupied={sauna_occupied}")
     except Exception as e:
