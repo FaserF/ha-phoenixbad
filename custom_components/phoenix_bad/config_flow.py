@@ -2,6 +2,10 @@ from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
 from .const import DOMAIN
 
+import homeassistant.helpers.config_validation as cv
+
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+
 class PhoenixBadConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Phönix Bad."""
 

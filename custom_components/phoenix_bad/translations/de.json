@@ -1,10 +1,14 @@
 {
-  "title": "Phönix-Bad Ottobrunn",
-  "sensor": {
-    "pool": "Belegung Pool",
-    "sauna": "Belegung Sauna"
-  },
-  "abort": {
-    "already_configured": "Ein Phönix Bad ist bereits konfiguriert. Bitte entfernen Sie die bestehende Konfiguration, um eine neue hinzuzufügen."
+  "title": "Phoenix-Bad Ottobrunn",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Einrichtung der Phoenix-Bad Ottobrunn Sensoren",
+        "description": "Passe deine Konfiguration hier an."
+      }
+    },
+    "abort": {
+      "already_configured": "Ein Phönix Bad ist bereits konfiguriert. Bitte entfernen Sie die bestehende Konfiguration, um eine neue hinzuzufügen."
+    }
   }
 }
