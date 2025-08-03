@@ -6,11 +6,11 @@
   ],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/faserf/ha-phoenixbad#readme",
+  "documentation": "https://github.com/FaserF/ha-phoenixbad#readme",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/faserf/ha-phoenixbad/issues",
+  "issue_tracker": "https://github.com/FaserF/ha-phoenixbad/issues",
   "requirements": [
-    "beautifulsoup4==4.13.3"
+    "beautifulsoup4==4.13.4"
   ],
-  "version": "1.1.0"
+  "version": "1.1.1"
 }
