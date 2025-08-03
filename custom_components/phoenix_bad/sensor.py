@@ -17,47 +17,51 @@ SENSOR_TYPE_SAUNA = "sauna"
 POOL_URL = "https://phoenixbad.de/wp-admin/admin-ajax.php?action=updateVisitors&area=hallenbad"
 SAUNA_URL = "https://phoenixbad.de/wp-admin/admin-ajax.php?action=updateVisitors&area=sauna"
 
-async def fetch_occupancy_pool(session):
-    """Fetch the occupancy data from the API."""
-    _LOGGER.debug("Fetching pool occupancy data from API...")
+DEFAULT_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+}
+
+
+async def fetch_occupancy_generic(session, url, sensor_type):
+    """Generic fetch function that handles numeric or HTML responses."""
+    _LOGGER.debug(f"Fetching {sensor_type} occupancy data from API...")
     try:
-        async with session.get(POOL_URL) as pool_response:
-            pool_response.raise_for_status()
-            pool_soup = BeautifulSoup(await pool_response.text(), 'html.parser')
-            pool_free_span = pool_soup.find('span', title=True)
-            pool_occupied_div = pool_soup.find('div', class_='inner_wrapper visitors')
-            if pool_free_span and pool_occupied_div:
-                pool_free = int(pool_free_span.text.strip() or "0")
-                pool_occupied = int(pool_occupied_div.find('span', title=True).text.strip() or "0")
-                _LOGGER.debug(f"Pool data fetched: free={pool_free}, occupied={pool_occupied}")
-                return {SENSOR_TYPE_POOL: (pool_free, pool_occupied)}
+        async with session.get(url, headers=DEFAULT_HEADERS) as response:
+            if response.status != 200:
+                _LOGGER.error(f"Failed to fetch {sensor_type} data. Status: {response.status}, Reason: {response.reason}")
+                _LOGGER.debug(f"Response text: {await response.text()}")
+                return {sensor_type: (0, 0)}
+
+            text = await response.text()
+            _LOGGER.debug(f"Raw {sensor_type} response text: {text.strip()}")
+
+            # Try if the response is just a number
+            try:
+                occupied = int(text.strip())
+                _LOGGER.debug(f"{sensor_type.capitalize()} occupancy number found: occupied={occupied}")
+                return {sensor_type: (0, occupied)}  # no free value known
+            except ValueError:
+                _LOGGER.debug(f"{sensor_type.capitalize()} response is not plain number, trying to parse HTML...")
+
+            # Try parsing HTML
+            soup = BeautifulSoup(text, 'html.parser')
+            free_span = soup.find('span', title=True)
+            occupied_div = soup.find('div', class_='inner_wrapper visitors')
+
+            if free_span and occupied_div:
+                free = int(free_span.text.strip() or "0")
+                occupied_text = occupied_div.find('span', title=True)
+                occupied = int(occupied_text.text.strip() or "0") if occupied_text else 0
+                _LOGGER.debug(f"{sensor_type.capitalize()} data fetched: free={free}, occupied={occupied}")
+                return {sensor_type: (free, occupied)}
             else:
-                _LOGGER.error("Could not find required pool occupancy elements in the response.")
+                _LOGGER.warning(f"Could not find expected HTML structure for {sensor_type} data.")
+
     except Exception as e:
-        _LOGGER.error(f"Failed to fetch pool occupancy data: {e}")
+        _LOGGER.error(f"Exception during {sensor_type} occupancy fetch: {e}")
 
-    return {SENSOR_TYPE_POOL: (0, 0)}
+    return {sensor_type: (0, 0)}
 
-async def fetch_occupancy_sauna(session):
-    """Fetch the occupancy data from the API."""
-    _LOGGER.debug("Fetching sauna occupancy data from API...")
-    try:
-        async with session.get(SAUNA_URL) as sauna_response:
-            sauna_response.raise_for_status()
-            sauna_soup = BeautifulSoup(await sauna_response.text(), 'html.parser')
-            sauna_free_span = sauna_soup.find('span', title=True)
-            sauna_occupied_div = sauna_soup.find('div', class_='inner_wrapper visitors')
-            if sauna_free_span and sauna_occupied_div:
-                sauna_free = int(sauna_free_span.text.strip() or "0")
-                sauna_occupied = int(sauna_occupied_div.find('span', title=True).text.strip() or "0")
-                _LOGGER.debug(f"Sauna data fetched: free={sauna_free}, occupied={sauna_occupied}")
-                return {SENSOR_TYPE_SAUNA: (sauna_free, sauna_occupied)}
-            else:
-                _LOGGER.error("Could not find required sauna occupancy elements in the response.")
-    except Exception as e:
-        _LOGGER.error(f"Failed to fetch sauna occupancy data: {e}")
-
-    return {SENSOR_TYPE_SAUNA: (0, 0)}
 
 class PoolOccupancySensor(SensorEntity):
     """Representation of the pool occupancy sensor."""
@@ -95,20 +99,17 @@ class PoolOccupancySensor(SensorEntity):
     async def async_update(self):
         _LOGGER.debug("Updating PoolOccupancySensor...")
         async with aiohttp.ClientSession() as session:
-            occupancy = await fetch_occupancy_pool(session)
-            if occupancy is None:
-                _LOGGER.error("Occupancy data is None, cannot update sensor.")
-                return
+            occupancy = await fetch_occupancy_generic(session, POOL_URL, SENSOR_TYPE_POOL)
+            free, occupied = occupancy[SENSOR_TYPE_POOL]
+            total = free + occupied
 
-            free_pool, occupied_pool = occupancy[SENSOR_TYPE_POOL]
-            total_pool = free_pool + occupied_pool
-
-            self._free = free_pool
-            self._occupied = occupied_pool
-            self._attr_native_value = round((occupied_pool / total_pool) * 100) if total_pool > 0 else 0
+            self._free = free
+            self._occupied = occupied
+            self._attr_native_value = round((occupied / total) * 100) if total > 0 else 0
 
             _LOGGER.debug("PoolOccupancySensor updated: free=%s, occupied=%s, native_value=%s",
                           self._free, self._occupied, self._attr_native_value)
+
 
 class SaunaOccupancySensor(SensorEntity):
     """Representation of the sauna occupancy sensor."""
@@ -146,20 +147,17 @@ class SaunaOccupancySensor(SensorEntity):
     async def async_update(self):
         _LOGGER.debug("Updating SaunaOccupancySensor...")
         async with aiohttp.ClientSession() as session:
-            occupancy = await fetch_occupancy_sauna(session)
-            if occupancy is None:
-                _LOGGER.error("Occupancy data is None, cannot update sensor.")
-                return
+            occupancy = await fetch_occupancy_generic(session, SAUNA_URL, SENSOR_TYPE_SAUNA)
+            free, occupied = occupancy[SENSOR_TYPE_SAUNA]
+            total = free + occupied
 
-            free_sauna, occupied_sauna = occupancy[SENSOR_TYPE_SAUNA]
-            total_sauna = free_sauna + occupied_sauna
-
-            self._free = free_sauna
-            self._occupied = occupied_sauna
-            self._attr_native_value = round((occupied_sauna / total_sauna) * 100) if total_sauna > 0 else 0
+            self._free = free
+            self._occupied = occupied
+            self._attr_native_value = round((occupied / total) * 100) if total > 0 else 0
 
             _LOGGER.debug("SaunaOccupancySensor updated: free=%s, occupied=%s, native_value=%s",
                           self._free, self._occupied, self._attr_native_value)
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     """Set up Phönix Bad sensors from a config entry."""

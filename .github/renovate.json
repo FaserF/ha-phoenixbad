@@ -9,10 +9,10 @@
         "/manifest.json$"
       ],
       "matchStrings": [
-        "schiene==?(?<currentValue>.+?)[\"']?\\s+"
+        "beautifulsoup4==?(?<currentValue>.+?)[\"']?\\s+"
       ],
       "datasourceTemplate": "pypi",
-      "depNameTemplate": "schiene"
+      "depNameTemplate": "beautifulsoup4"
     }
   ],
   "packageRules": [
