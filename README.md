@@ -1,31 +1,36 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
-# Phönix Bad Ottobrunn occupancy Homeassistant Sensor
-The `phoenix_bad` sensor will give you informations about the current utilization of the Phönix Bad.
 
-## Installation
-### 1. Using HACS (recommended way)
+# Phönix Bad Home Assistant Sensor 🏊
 
-This integration is soon a official HACS Integration and right now an custom integration.
+The `phoenix_bad` sensor provides real-time occupancy information for the **Phönix Bad Ottobrunn**.
 
-Open HACS then install the "Phönix Bad Ottobrunn" integration or use the link below.
+## Features ✨
+
+- **Occupancy Tracking**: Know how busy the pool or sauna is before you go.
+
+## Installation 🛠️
+
+### 1. Using HACS (Recommended)
+
+This integration works as a **Custom Repository** in HACS.
+
+1.  Open HACS.
+2.  Add Custom Repository: `https://github.com/FaserF/ha-phoenixbad` (Category: Integration).
+3.  Click **Download**.
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=FaserF&repository=ha-phoenixbad&category=integration)
 
-If you use this method, your component will always update to the latest version.
+### 2. Manual Installation
 
-### 2. Manual
+1.  Download the latest [Release](https://github.com/FaserF/ha-phoenixbad/releases/latest).
+2.  Extract the ZIP file.
+3.  Copy the `phoenix_bad` folder to `<config>/custom_components/`.
 
-- Download the latest zip release from [here](https://github.com/FaserF/ha-phoenixbad/releases/latest)
-- Extract the zip file
-- Copy the folder "phoenix_bad" from within custom_components with all of its components to `<config>/custom_components/`
+## Configuration ⚙️
 
-where `<config>` is your Home Assistant configuration directory.
-
->__NOTE__: Do not download the file by using the link above directly, the status in the "master" branch can be in development and therefore is maybe not working.
-
-## Configuration
-
-Go to Configuration -> Integrations and click on "add integration". Then search for "Phönix Bad Ottobrunn".
+1.  Go to **Settings** -> **Devices & Services**.
+2.  Click **Add Integration**.
+3.  Search for "Phönix Bad Ottobrunn".
 
 [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=phoenix_bad)
 
