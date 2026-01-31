@@ -1,4 +1,5 @@
 import logging
+import re
 import aiohttp
 from bs4 import BeautifulSoup
 from homeassistant.components.sensor import SensorEntity
@@ -14,8 +15,8 @@ SCAN_INTERVAL = timedelta(hours=1)
 SENSOR_TYPE_POOL = "pool"
 SENSOR_TYPE_SAUNA = "sauna"
 
-POOL_URL = "https://phoenixbad.de/wp-admin/admin-ajax.php?action=updateVisitors&area=hallenbad"
-SAUNA_URL = "https://phoenixbad.de/wp-admin/admin-ajax.php?action=updateVisitors&area=sauna"
+POOL_URL = "https://phoenixbad.de/wp-admin/admin-ajax.php?action=updateLiveVisitors&area=Bad"
+SAUNA_URL = "https://phoenixbad.de/wp-admin/admin-ajax.php?action=updateLiveVisitors&area=Sauna"
 
 DEFAULT_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
@@ -23,7 +24,7 @@ DEFAULT_HEADERS = {
 
 
 async def fetch_occupancy_generic(session, url, sensor_type):
-    """Generic fetch function that handles numeric or HTML responses."""
+    """Fetch occupancy data from the new HTML-based API."""
     _LOGGER.debug(f"Fetching {sensor_type} occupancy data from API...")
     try:
         async with session.get(url, headers=DEFAULT_HEADERS) as response:
@@ -35,27 +36,51 @@ async def fetch_occupancy_generic(session, url, sensor_type):
             text = await response.text()
             _LOGGER.debug(f"Raw {sensor_type} response text: {text.strip()}")
 
-            # Try if the response is just a number
-            try:
-                occupied = int(text.strip())
-                _LOGGER.debug(f"{sensor_type.capitalize()} occupancy number found: occupied={occupied}")
-                return {sensor_type: (0, occupied)}  # no free value known
-            except ValueError:
-                _LOGGER.debug(f"{sensor_type.capitalize()} response is not plain number, trying to parse HTML...")
-
-            # Try parsing HTML
+            # Parse HTML response
             soup = BeautifulSoup(text, 'html.parser')
-            free_span = soup.find('span', title=True)
-            occupied_div = soup.find('div', class_='inner_wrapper visitors')
 
-            if free_span and occupied_div:
-                free = int(free_span.text.strip() or "0")
-                occupied_text = occupied_div.find('span', title=True)
-                occupied = int(occupied_text.text.strip() or "0") if occupied_text else 0
-                _LOGGER.debug(f"{sensor_type.capitalize()} data fetched: free={free}, occupied={occupied}")
-                return {sensor_type: (free, occupied)}
+            # Find the outer wrapper div with data-free attribute
+            outer_div = soup.find('div', class_='outer_wrapper')
+
+            if not outer_div:
+                _LOGGER.warning(f"Could not find outer_wrapper div for {sensor_type} data.")
+                return {sensor_type: (0, 0)}
+
+            # Get free spaces from data-free attribute
+            data_free = outer_div.get('data-free')
+            if not data_free:
+                _LOGGER.warning(f"Could not find data-free attribute for {sensor_type} data.")
+                return {sensor_type: (0, 0)}
+
+            free = int(data_free)
+
+            # Get occupied percentage from inner div style
+            inner_div = outer_div.find('div', class_='inner_wrapper')
+            if not inner_div:
+                _LOGGER.warning(f"Could not find inner_wrapper div for {sensor_type} data.")
+                return {sensor_type: (free, 0)}
+
+            style = inner_div.get('style', '')
+            width_match = re.search(r'width:\s*([\d.]+)%', style)
+
+            if not width_match:
+                _LOGGER.warning(f"Could not extract width percentage for {sensor_type} data.")
+                return {sensor_type: (free, 0)}
+
+            occupied_pct = float(width_match.group(1))
+
+            # Calculate occupied count from percentage and free spaces
+            # occupied_pct = (occupied / total) * 100
+            # total = free + occupied
+            # occupied = (occupied_pct * free) / (100 - occupied_pct)
+            if occupied_pct >= 100:
+                occupied = 0
+                _LOGGER.warning(f"{sensor_type} shows 100% occupancy, setting occupied to 0")
             else:
-                _LOGGER.warning(f"Could not find expected HTML structure for {sensor_type} data.")
+                occupied = round((occupied_pct * free) / (100 - occupied_pct))
+
+            _LOGGER.debug(f"{sensor_type} data fetched: free={free}, occupied={occupied}, occupancy={occupied_pct}%")
+            return {sensor_type: (free, occupied)}
 
     except Exception as e:
         _LOGGER.error(f"Exception during {sensor_type} occupancy fetch: {e}")
