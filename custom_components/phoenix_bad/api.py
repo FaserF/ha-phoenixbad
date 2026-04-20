@@ -1,4 +1,5 @@
 """API client for Phoenix-Bad Ottobrunn."""
+
 from __future__ import annotations
 
 import asyncio
@@ -12,8 +13,12 @@ from bs4 import BeautifulSoup
 _LOGGER = logging.getLogger(__name__)
 
 # API endpoints
-POOL_URL = "https://phoenixbad.de/wp-admin/admin-ajax.php?action=updateLiveVisitors&area=Bad"
-SAUNA_URL = "https://phoenixbad.de/wp-admin/admin-ajax.php?action=updateLiveVisitors&area=Sauna"
+POOL_URL = (
+    "https://phoenixbad.de/wp-admin/admin-ajax.php?action=updateLiveVisitors&area=Bad"
+)
+SAUNA_URL = (
+    "https://phoenixbad.de/wp-admin/admin-ajax.php?action=updateLiveVisitors&area=Sauna"
+)
 
 DEFAULT_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
@@ -113,7 +118,9 @@ class PhoenixBadApiClient:
                 url, headers=DEFAULT_HEADERS, timeout=self._timeout
             ) as response:
                 if response.status != 200:
-                    error_msg = f"API returned status {response.status}: {response.reason}"
+                    error_msg = (
+                        f"API returned status {response.status}: {response.reason}"
+                    )
                     _LOGGER.error("Failed to fetch %s data: %s", area_name, error_msg)
                     raise PhoenixBadConnectionError(error_msg)
 
@@ -161,7 +168,7 @@ class PhoenixBadApiClient:
                     f"Could not find data-free attribute in {area_name} response"
                 )
 
-            free = int(data_free)
+            free = int(str(data_free[0] if isinstance(data_free, list) else data_free))
 
             # Get occupied percentage from inner div style
             inner_div = outer_div.find("div", class_="inner_wrapper")
@@ -170,7 +177,7 @@ class PhoenixBadApiClient:
                 _LOGGER.debug("%s has no visitors (no inner_wrapper)", area_name)
                 return OccupancyData(free=free, occupied=0, percentage=0.0)
 
-            style = inner_div.get("style", "")
+            style = str(inner_div.get("style", ""))
             width_match = re.search(r"width:\s*([\d.]+)%", style)
 
             if not width_match:
@@ -248,12 +255,12 @@ class PhoenixBadApiClient:
 
         result: dict[str, OccupancyData] = {}
 
-        if isinstance(pool_data, Exception):
+        if isinstance(pool_data, BaseException):
             _LOGGER.error("Failed to fetch pool data: %s", pool_data)
         else:
             result["pool"] = pool_data
 
-        if isinstance(sauna_data, Exception):
+        if isinstance(sauna_data, BaseException):
             _LOGGER.error("Failed to fetch sauna data: %s", sauna_data)
         else:
             result["sauna"] = sauna_data
