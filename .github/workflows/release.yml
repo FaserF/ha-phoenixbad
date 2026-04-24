@@ -1,12 +1,17 @@
-﻿name: Release
+name: Release
 on:
   workflow_dispatch:
     inputs:
+      bump_type:
+        description: 'What to bump (Major, Minor, Patch)'
+        required: true
+        type: choice
+        options: [major, minor, patch]
       release_type:
         description: 'Release Type'
         required: true
         type: choice
-        options: [stable, beta, nightly]
+        options: [stable, beta]
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -20,10 +25,9 @@ jobs:
       - name: Calculate Version
         id: version
         run: |
-          NEW_VERSION=$(python .github/scripts/version_manager.py bump --type ${{ inputs.release_type }})
+          NEW_VERSION=$(python .github/scripts/version_manager.py bump --bump-type ${{ inputs.bump_type }} --release-type ${{ inputs.release_type }})
           echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
       - name: Create Release Tag
-        if: inputs.release_type != 'nightly'
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
@@ -37,12 +41,10 @@ jobs:
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
           echo "tag=$PREV_TAG" >> $GITHUB_OUTPUT
       - name: Generate Changelog
-        if: inputs.release_type != 'nightly'
         run: |
           python .github/scripts/changelog_builder.py --from-tag "${{ steps.pre_tag.outputs.tag }}" --repo-url "https://github.com/${{ github.repository }}" --output "CHANGELOG_BODY.md"
       - name: Zip Component
         id: zip
-        if: inputs.release_type != 'nightly'
         run: |
           DOMAIN=$(basename $(ls -d custom_components/*/ | grep -v "__pycache__" | head -n 1))
           echo "Found domain: $DOMAIN"
@@ -58,9 +60,9 @@ jobs:
           body_path: CHANGELOG_BODY.md
           prerelease: ${{ inputs.release_type == 'beta' }}
           files: ${{ env.DOMAIN }}.zip
-      - name: Post-Release Dev Bump
-        if: inputs.release_type != 'nightly'
+      - name: Post-Release Bump
+        if: inputs.release_type == 'stable'
         run: |
-          NEW_DEV=$(python .github/scripts/version_manager.py bump --type dev)
-          git commit -am "chore(dev): bump to $NEW_DEV"
+          NEW_VER=$(python .github/scripts/version_manager.py bump --bump-type patch --release-type stable)
+          git commit -am "chore: bump version to $NEW_VER"
           git push origin main
