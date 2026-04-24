@@ -1,6 +1,6 @@
 {
   "domain": "phoenix_bad",
-  "name": "Phönix-Bad Ottobrunn",
+  "name": "Ph\u00f6nix-Bad Ottobrunn",
   "codeowners": [
     "@FaserF"
   ],
@@ -12,5 +12,5 @@
   "requirements": [
     "beautifulsoup4==4.14.3"
   ],
-  "version": "1.2.0"
+  "version": "2026.4.0"
 }
