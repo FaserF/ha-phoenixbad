@@ -9,7 +9,7 @@ from typing import Final
 DOMAIN: Final = "phoenix_bad"
 
 # Platforms
-PLATFORMS: Final = ["sensor"]
+PLATFORMS: Final = ["sensor", "diagnostics"]
 
 # Configuration
 DEFAULT_SCAN_INTERVAL: Final = timedelta(hours=1)
@@ -31,7 +31,7 @@ SENSOR_KEY_SAUNA_OCCUPIED: Final = "sauna_occupied"
 # Device info
 MANUFACTURER: Final = "Phoenix-Bad Ottobrunn"
 MODEL: Final = "Occupancy Sensor"
-DEVICE_NAME: Final = "Phoenix-Bad Ottobrunn"
+DEVICE_NAME: Final = "Occupancy Data"
 
 # URLs
 WEBSITE_URL: Final = "https://phoenixbad.de"

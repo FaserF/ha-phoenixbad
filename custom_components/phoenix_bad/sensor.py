@@ -1,3 +1,5 @@
+"""Sensor platform for Phoenix-Bad Ottobrunn."""
+
 import logging
 
 from homeassistant.components.sensor import SensorEntity
@@ -17,7 +19,7 @@ async def async_setup_entry(
     """Set up Phönix Bad sensors from a config entry."""
     _LOGGER.debug("Setting up Phönix Bad sensors...")
     coordinator: PhoenixBadCoordinator = hass.data[DOMAIN][entry.entry_id]
-    
+
     sensors = [
         PoolOccupancySensor(coordinator),
         SaunaOccupancySensor(coordinator),
@@ -27,15 +29,28 @@ async def async_setup_entry(
 
 class PhoenixBadSensor(CoordinatorEntity, SensorEntity):
     """Base class for Phoenix-Bad sensors."""
-    
+
     _attr_has_entity_name = True
-    
+
     def __init__(self, coordinator: PhoenixBadCoordinator, sensor_type: str):
         """Initialize the sensor."""
         super().__init__(coordinator)
         self._sensor_type = sensor_type
         self._attr_unique_id = f"phoenixbad_{sensor_type}_occupancy"
         self._attr_unit_of_measurement = "%"
+
+    @property
+    def device_info(self):
+        """Return device information."""
+        from .const import MANUFACTURER, MODEL, WEBSITE_URL
+        return {
+            "identifiers": {(DOMAIN, self.coordinator.config_entry.entry_id)},
+            "name": "Occupancy Data",
+            "manufacturer": MANUFACTURER,
+            "model": MODEL,
+            "configuration_url": WEBSITE_URL,
+            "entry_type": "service",
+        }
 
     @property
     def native_value(self):

@@ -21,10 +21,14 @@ SAUNA_URL = (
 )
 
 DEFAULT_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/115.0.0.0 Safari/537.36"
+    )
 }
 
-DEFAULT_TIMEOUT = 10
+DEFAULT_TIMEOUT = 20
 
 
 class PhoenixBadApiError(Exception):
@@ -57,7 +61,10 @@ class OccupancyData:
 
     def __repr__(self) -> str:
         """Return string representation."""
-        return f"OccupancyData(free={self.free}, occupied={self.occupied}, percentage={self.percentage:.2f}%)"
+        return (
+            f"OccupancyData(free={self.free}, occupied={self.occupied}, "
+            f"percentage={self.percentage:.2f}%)"
+        )
 
 
 class PhoenixBadApiClient:
@@ -156,15 +163,21 @@ class PhoenixBadApiClient:
 
             # Find the outer wrapper div with data-free attribute
             # We first try the specific class, then fall back to any element with data-free
-            outer_div = soup.find("div", class_="outer_wrapper") or soup.find(attrs={"data-free": True})
-            
+            outer_div = soup.find("div", class_="outer_wrapper") or soup.find(
+                attrs={"data-free": True}
+            )
+
             if not outer_div:
                 if "Area data missing" in html:
                     _LOGGER.debug("%s area data missing (likely closed)", area_name)
                     return OccupancyData(free=0, occupied=0, percentage=0.0)
-                
+
                 # Log a snippet of the HTML to help debug future changes
-                _LOGGER.error("Could not find occupancy data in %s response. HTML snippet: %s", area_name, html[:200])
+                _LOGGER.error(
+                    "Could not find occupancy data in %s response. HTML snippet: %s",
+                    area_name,
+                    html[:200],
+                )
                 raise PhoenixBadParseError(
                     f"Could not find occupancy data element in {area_name} response"
                 )
@@ -178,7 +191,7 @@ class PhoenixBadApiClient:
 
             if isinstance(data_free, list):
                 data_free = data_free[0] if data_free else "0"
-            
+
             try:
                 free = int(str(data_free))
             except ValueError:
@@ -186,11 +199,13 @@ class PhoenixBadApiClient:
                 free = 0
 
             # Get occupied percentage from style attribute
-            # We look for the inner_wrapper, but fall back to searching the whole outer_div's children for a width style
-            inner_div = outer_div.find("div", class_="inner_wrapper") or outer_div.find(attrs={"style": re.compile(r"width")})
-            
+            # We look for the inner_wrapper, but fall back to searching children for width
+            inner_div = outer_div.find("div", class_="inner_wrapper") or outer_div.find(
+                attrs={"style": re.compile(r"width")}
+            )
+
             if not inner_div:
-                # No visitors or different structure, try to find width in the whole HTML as fallback
+                # No visitors or different structure, try to find width in whole HTML
                 width_match = re.search(r"width:\s*([\d.]+)%", html)
             else:
                 style = str(inner_div.get("style", ""))
@@ -230,39 +245,15 @@ class PhoenixBadApiClient:
             raise PhoenixBadParseError(error_msg) from err
 
     async def get_pool_occupancy(self) -> OccupancyData:
-        """Get pool occupancy data.
-
-        Returns:
-            OccupancyData object with pool occupancy
-
-        Raises:
-            PhoenixBadConnectionError: If connection fails
-            PhoenixBadParseError: If parsing fails
-        """
+        """Get pool occupancy data."""
         return await self._fetch_occupancy(POOL_URL, "Pool")
 
     async def get_sauna_occupancy(self) -> OccupancyData:
-        """Get sauna occupancy data.
-
-        Returns:
-            OccupancyData object with sauna occupancy
-
-        Raises:
-            PhoenixBadConnectionError: If connection fails
-            PhoenixBadParseError: If parsing fails
-        """
+        """Get sauna occupancy data."""
         return await self._fetch_occupancy(SAUNA_URL, "Sauna")
 
     async def get_all_occupancy(self) -> dict[str, OccupancyData]:
-        """Get occupancy data for all areas.
-
-        Returns:
-            Dictionary with 'pool' and 'sauna' keys containing OccupancyData
-
-        Raises:
-            PhoenixBadConnectionError: If connection fails
-            PhoenixBadParseError: If parsing fails
-        """
+        """Get occupancy data for all areas."""
         pool_data, sauna_data = await asyncio.gather(
             self.get_pool_occupancy(),
             self.get_sauna_occupancy(),

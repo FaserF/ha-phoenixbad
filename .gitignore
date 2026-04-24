@@ -2,3 +2,5 @@
 megalinter-reports/
 github_conf/
 /custom_components/phoenix_bad/__pycache__
+/custom_components/__pycache__
+/tests/__pycache__
