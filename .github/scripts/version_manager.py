@@ -24,8 +24,8 @@ def get_current_version(manifest_path):
         v_tags = []
         for tag in tags:
             tag = tag.strip()
-            # Match Major.Minor.Patch (optional bX)
-            match = re.match(r"^(\d+)\.(\d+)\.(\d+)(?:b(\d+))?$", tag)
+            # Match v?Major.Minor.Patch (optional bX)
+            match = re.match(r"^v?(\d+)\.(\d+)\.(\d+)(?:b(\d+))?$", tag)
             if match:
                 maj, min_v, pat, b_n = match.groups()
                 v_tags.append(
