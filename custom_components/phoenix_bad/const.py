@@ -9,7 +9,7 @@ from typing import Final
 DOMAIN: Final = "phoenix_bad"
 
 # Platforms
-PLATFORMS: Final = ["sensor", "diagnostics"]
+PLATFORMS: Final = ["sensor"]
 
 # Configuration
 DEFAULT_SCAN_INTERVAL: Final = timedelta(hours=1)
