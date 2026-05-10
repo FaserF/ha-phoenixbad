@@ -31,7 +31,8 @@ jobs:
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git commit -am "chore(release): bump version to ${{ steps.version.outputs.version }}"
+          git add .
+          git commit -m "chore(release): bump version to ${{ steps.version.outputs.version }}" || echo "No changes to commit"
           git tag ${{ steps.version.outputs.version }}
           git push origin ${{ steps.version.outputs.version }}
           git push origin main
@@ -64,5 +65,6 @@ jobs:
         if: inputs.release_type == 'stable'
         run: |
           NEW_VER=$(python .github/scripts/version_manager.py bump --bump-type patch --release-type stable)
-          git commit -am "chore: bump version to $NEW_VER"
+          git add .
+          git commit -m "chore: bump version to $NEW_VER" || echo "No changes to commit"
           git push origin main
