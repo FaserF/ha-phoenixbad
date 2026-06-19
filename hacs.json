@@ -1,7 +1,9 @@
 {
-    "name": "Phönix-Bad Ottobrunn",
-    "render_readme": true,
-    "country": [
-        "DE"
-    ]
+  "name": "Phönix-Bad Ottobrunn",
+  "render_readme": true,
+  "country": [
+    "DE"
+  ],
+  "zip_release": true,
+  "filename": "phoenix_bad.zip"
 }
