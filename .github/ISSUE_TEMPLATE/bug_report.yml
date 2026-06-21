@@ -18,7 +18,7 @@ body:
     attributes:
       label: Integration Version
       description: Which version of the PhoenixBad integration are you using?
-      placeholder: e.g. vv1.3.2-dev0-dev0
+      placeholder: e.g. v1.3.2-dev0
     validations:
       required: true
 
