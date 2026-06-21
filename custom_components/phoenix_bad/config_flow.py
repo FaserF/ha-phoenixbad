@@ -1,4 +1,5 @@
 """Config flow for Phönix-Bad Ottobrunn."""
+
 from __future__ import annotations
 
 import homeassistant.helpers.config_validation as cv

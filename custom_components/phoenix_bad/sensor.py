@@ -13,6 +13,7 @@ from .coordinator import PhoenixBadCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
+
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ):
@@ -26,6 +27,7 @@ async def async_setup_entry(
     ]
     async_add_entities(sensors)
     _LOGGER.debug("Sensors added successfully.")
+
 
 class PhoenixBadSensor(CoordinatorEntity, SensorEntity):
     """Base class for Phoenix-Bad sensors."""
@@ -43,6 +45,7 @@ class PhoenixBadSensor(CoordinatorEntity, SensorEntity):
     def device_info(self):
         """Return device information."""
         from .const import MANUFACTURER, MODEL, WEBSITE_URL
+
         return {
             "identifiers": {(DOMAIN, self.coordinator.config_entry.entry_id)},
             "name": "Occupancy Data",
@@ -70,15 +73,19 @@ class PhoenixBadSensor(CoordinatorEntity, SensorEntity):
             "occupied": data.occupied,
         }
 
+
 class PoolOccupancySensor(PhoenixBadSensor):
     """Representation of the pool occupancy sensor."""
+
     def __init__(self, coordinator: PhoenixBadCoordinator):
         super().__init__(coordinator, "pool")
         self._attr_name = "Pool Occupancy"
         self._attr_icon = "mdi:pool"
 
+
 class SaunaOccupancySensor(PhoenixBadSensor):
     """Representation of the sauna occupancy sensor."""
+
     def __init__(self, coordinator: PhoenixBadCoordinator):
         super().__init__(coordinator, "sauna")
         self._attr_name = "Sauna Occupancy"
