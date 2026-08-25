@@ -28,7 +28,7 @@ DEFAULT_HEADERS = {
     )
 }
 
-DEFAULT_TIMEOUT = 20
+DEFAULT_TIMEOUT = 5
 
 
 class PhoenixBadApiError(Exception):
