@@ -1,6 +1,7 @@
 """Tests for Phoenix-Bad API client."""
 
 import pytest
+
 from custom_components.phoenix_bad.api import PhoenixBadApiClient, PhoenixBadParseError
 
 

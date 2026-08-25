@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
 import logging
+from datetime import timedelta
 
+import aiohttp
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-import aiohttp
 
-from .api import PhoenixBadApiClient, PhoenixBadApiError, OccupancyData
-from .const import DOMAIN, DEFAULT_SCAN_INTERVAL
+from .api import OccupancyData, PhoenixBadApiClient, PhoenixBadApiError
+from .const import DEFAULT_SCAN_INTERVAL, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 

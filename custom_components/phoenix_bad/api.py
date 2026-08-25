@@ -5,7 +5,6 @@ from __future__ import annotations
 import asyncio
 import logging
 import re
-from typing import Any
 
 import aiohttp
 from bs4 import BeautifulSoup
@@ -91,7 +90,7 @@ class PhoenixBadApiClient:
             self._session = aiohttp.ClientSession()
         return self
 
-    async def __aexit__(self, *args: Any) -> None:
+    async def __aexit__(self, *args: object) -> None:
         """Async context manager exit."""
         if self._own_session and self._session:
             await self._session.close()
