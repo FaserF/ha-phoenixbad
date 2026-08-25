@@ -139,7 +139,7 @@ class PhoenixBadApiClient:
             error_msg = f"Connection error: {err}"
             _LOGGER.error("Failed to fetch %s data: %s", area_name, error_msg)
             raise PhoenixBadConnectionError(error_msg) from err
-        except asyncio.TimeoutError as err:
+        except TimeoutError as err:
             error_msg = "Request timeout"
             _LOGGER.error("Failed to fetch %s data: %s", area_name, error_msg)
             raise PhoenixBadConnectionError(error_msg) from err
